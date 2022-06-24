@@ -67,12 +67,31 @@ func (s sellerService) UpdateSeller(ctx context.Context, id, cid uuid.UUID, comp
 		seller.CompanyName = companyName
 	}
 
+	if strings.Trim(address, " ") != "" {
+		seller.Address = address
+	}
+
+	if strings.Trim(telephone, " ") != "" {
+		seller.Telephone = telephone
+	}
+
+	seller, err = s.repository.UpdateSeller(ctx, seller)
+	if err != nil {
+		log.Println(err.Error())
+		return seller, http.StatusBadRequest, errors.New("could not update seller")
+	}
+
 	return seller, http.StatusOK, nil
 }
 
 func (s sellerService) DeleteSeller(ctx context.Context, uuid uuid.UUID) (int, error) {
-	//TODO implement me
-	panic("implement me")
+	err := s.repository.DeleteSeller(ctx, uuid)
+	if err != nil {
+		log.Println(err.Error())
+		return http.StatusNotFound, errors.New("seller not found")
+	}
+
+	return http.StatusNoContent, nil
 }
 
 func NewSellerService(sr domain.SellerRepository) domain.SellerService {
