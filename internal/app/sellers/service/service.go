@@ -14,7 +14,7 @@ type sellerService struct {
 	repository domain.SellerRepository
 }
 
-func (s sellerService) GetAllSeller(ctx context.Context) ([]domain.Seller, int, error) {
+func (s sellerService) GetAllSellers(ctx context.Context) ([]domain.Seller, int, error) {
 	sellers, err := s.repository.GetAllSellers(ctx)
 	if err != nil {
 		log.Println(err.Error())
