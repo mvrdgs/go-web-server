@@ -35,8 +35,23 @@ func (m mysqlRepository) GetAllSellers(ctx context.Context) ([]domain.Seller, er
 }
 
 func (m mysqlRepository) GetOneSeller(ctx context.Context, i int) (domain.Seller, error) {
-	//TODO implement me
-	panic("implement me")
+	var seller domain.Seller
+
+	rows, err := m.db.Query(getOne)
+	if err != nil {
+		log.Println(err)
+		return seller, err
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
+		if err != nil {
+			log.Fatalln(err.Error())
+			return seller, err
+		}
+	}
+
+	return seller, nil
 }
 
 func (m mysqlRepository) CreateSeller(ctx context.Context, seller domain.Seller) (domain.Seller, error) {
