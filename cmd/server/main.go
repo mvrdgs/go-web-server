@@ -1,20 +1,21 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
+	"fmt"
+	"github.com/google/uuid"
 )
 
 func main() {
-	r := gin.Default()
-
-	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "hello world")
-	})
-
-	err := r.Run()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	//r := gin.Default()
+	//
+	//r.GET("/", func(c *gin.Context) {
+	//	c.String(http.StatusOK, "hello world")
+	//})
+	//
+	//err := r.Run()
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
+	var id uuid.UUID
+	fmt.Println(id == uuid.Nil)
 }

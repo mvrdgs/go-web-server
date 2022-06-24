@@ -105,7 +105,7 @@ func (m mysqlRepository) UpdateSeller(ctx context.Context, seller domain.Seller)
 		}
 	}(stmt)
 
-	_, err = stmt.ExecContext(ctx, seller.ID, seller.CID, seller.CompanyName, seller.Address, seller.Telephone)
+	_, err = stmt.ExecContext(ctx, seller.CID, seller.CompanyName, seller.Address, seller.Telephone, seller.ID)
 	if err != nil {
 		return domain.Seller{}, err
 	}
