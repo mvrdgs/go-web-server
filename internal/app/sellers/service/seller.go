@@ -34,8 +34,21 @@ func (s sellerService) GetOneSeller(ctx context.Context, uuid uuid.UUID) (domain
 }
 
 func (s sellerService) CreateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (domain.Seller, int, error) {
-	//TODO implement me
-	panic("implement me")
+	seller := domain.Seller{
+		ID:          id,
+		CID:         cid,
+		CompanyName: companyName,
+		Address:     address,
+		Telephone:   telephone,
+	}
+
+	seller, err := s.repository.CreateSeller(ctx, seller)
+	if err != nil {
+		log.Println(err.Error())
+		return domain.Seller{}, http.StatusConflict, errors.New("cid already registered")
+	}
+
+	return seller, http.StatusCreated, nil
 }
 
 func (s sellerService) UpdateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (domain.Seller, int, error) {
