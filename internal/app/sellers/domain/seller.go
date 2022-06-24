@@ -22,9 +22,9 @@ type SellerRepository interface {
 }
 
 type SellerService interface {
-	GetAllSeller(context.Context) ([]Seller, error)
-	GetOneSeller(context.Context, uuid.UUID) (Seller, error)
-	CreateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (Seller, error)
-	UpdateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (Seller, error)
-	DeleteSeller(context.Context, uuid.UUID) error
+	GetAllSeller(context.Context) ([]Seller, int, error)
+	GetOneSeller(context.Context, uuid.UUID) (Seller, int, error)
+	CreateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (Seller, int, error)
+	UpdateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (Seller, int, error)
+	DeleteSeller(context.Context, uuid.UUID) (int, error)
 }
