@@ -31,7 +31,7 @@ func (m mysqlRepository) GetAllSellers(ctx context.Context) ([]domain.Seller, er
 		var seller domain.Seller
 		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
 		if err != nil {
-			log.Fatalln(err.Error())
+			log.Println(err.Error())
 			return nil, err
 		}
 
@@ -60,7 +60,7 @@ func (m mysqlRepository) GetOneSeller(ctx context.Context, id int) (domain.Selle
 	for rows.Next() {
 		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
 		if err != nil {
-			log.Fatalln(err.Error())
+			log.Println(err.Error())
 			return seller, err
 		}
 	}
@@ -71,7 +71,8 @@ func (m mysqlRepository) GetOneSeller(ctx context.Context, id int) (domain.Selle
 func (m mysqlRepository) CreateSeller(ctx context.Context, seller domain.Seller) (domain.Seller, error) {
 	stmt, err := m.db.PrepareContext(ctx, create)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
+		return seller, err
 	}
 	defer func(stmt *sql.Stmt) {
 		err := stmt.Close()
@@ -92,7 +93,8 @@ func (m mysqlRepository) CreateSeller(ctx context.Context, seller domain.Seller)
 func (m mysqlRepository) UpdateSeller(ctx context.Context, seller domain.Seller) (domain.Seller, error) {
 	stmt, err := m.db.PrepareContext(ctx, update)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
+		return seller, err
 	}
 
 	defer func(stmt *sql.Stmt) {
@@ -110,9 +112,25 @@ func (m mysqlRepository) UpdateSeller(ctx context.Context, seller domain.Seller)
 	return seller, nil
 }
 
-func (m mysqlRepository) DeleteSeller(ctx context.Context, i int) error {
-	//TODO implement me
-	panic("implement me")
+func (m mysqlRepository) DeleteSeller(ctx context.Context, id int) error {
+	stmt, err := m.db.PrepareContext(ctx, delete)
+	if err != nil {
+		return err
+	}
+
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}(stmt)
+
+	_, err = stmt.ExecContext(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func NewMysqlRepository(db *sql.DB) domain.SellerRepository {
