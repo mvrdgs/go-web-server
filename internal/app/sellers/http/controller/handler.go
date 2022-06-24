@@ -116,3 +116,21 @@ func (s *SellerHandler) UpdateSeller() gin.HandlerFunc {
 		ctx.JSON(code, web.NewResponse(code, seller, ""))
 	}
 }
+
+func (s *SellerHandler) DeleteSeller() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := uuid.Parse(ctx.Param("id"))
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "invalid id"))
+			return
+		}
+
+		code, err := s.sellerService.DeleteSeller(ctx, id)
+		if err != nil {
+			ctx.JSON(code, web.NewResponse(code, nil, err.Error()))
+			return
+		}
+
+		ctx.JSON(code, web.NewResponse(code, nil, ""))
+	}
+}
