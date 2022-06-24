@@ -3,11 +3,11 @@ package domain
 import "context"
 
 type Seller struct {
-	ID          int    `db:"uuid" json:"id"`
-	CID         int    `db:"" json:"cid"`
-	CompanyName string `json:"company_name"`
-	Address     string `json:"address"`
-	Telephone   string `json:"telephone"`
+	ID          int    `db:"id" json:"id"`
+	CID         int    `db:"cid" json:"cid"`
+	CompanyName string `db:"company_name" json:"company_name"`
+	Address     string `db:"address" json:"address"`
+	Telephone   string `db:"telephone" json:"telephone"`
 }
 
 type SellerRepository interface {
