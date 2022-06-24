@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"github.com/google/uuid"
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/domain"
 	"log"
 )
@@ -41,7 +42,7 @@ func (m mysqlRepository) GetAllSellers(ctx context.Context) ([]domain.Seller, er
 	return sellers, nil
 }
 
-func (m mysqlRepository) GetOneSeller(ctx context.Context, id int) (domain.Seller, error) {
+func (m mysqlRepository) GetOneSeller(ctx context.Context, id uuid.UUID) (domain.Seller, error) {
 	var seller domain.Seller
 
 	rows, err := m.db.QueryContext(ctx, getOne, id)
@@ -112,7 +113,7 @@ func (m mysqlRepository) UpdateSeller(ctx context.Context, seller domain.Seller)
 	return seller, nil
 }
 
-func (m mysqlRepository) DeleteSeller(ctx context.Context, id int) error {
+func (m mysqlRepository) DeleteSeller(ctx context.Context, id uuid.UUID) error {
 	stmt, err := m.db.PrepareContext(ctx, delete)
 	if err != nil {
 		return err
