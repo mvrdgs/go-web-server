@@ -24,8 +24,13 @@ func (s sellerService) GetAllSeller(ctx context.Context) ([]domain.Seller, int, 
 }
 
 func (s sellerService) GetOneSeller(ctx context.Context, uuid uuid.UUID) (domain.Seller, int, error) {
-	//TODO implement me
-	panic("implement me")
+	seller, err := s.repository.GetOneSeller(ctx, uuid)
+	if err != nil {
+		log.Println(err.Error())
+		return seller, http.StatusNotFound, errors.New("seller not found")
+	}
+
+	return seller, http.StatusOK, nil
 }
 
 func (s sellerService) CreateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (domain.Seller, int, error) {
