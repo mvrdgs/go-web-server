@@ -20,7 +20,12 @@ func (m mysqlRepository) GetAllSellers(ctx context.Context) ([]domain.Seller, er
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}(rows)
 
 	for rows.Next() {
 		var seller domain.Seller
@@ -45,7 +50,12 @@ func (m mysqlRepository) GetOneSeller(ctx context.Context, id int) (domain.Selle
 		return seller, err
 	}
 
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}(rows)
 
 	for rows.Next() {
 		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
@@ -59,11 +69,16 @@ func (m mysqlRepository) GetOneSeller(ctx context.Context, id int) (domain.Selle
 }
 
 func (m mysqlRepository) CreateSeller(ctx context.Context, seller domain.Seller) (domain.Seller, error) {
-	stmt, err := m.db.Prepare(create)
+	stmt, err := m.db.PrepareContext(ctx, create)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	defer stmt.Close()
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}(stmt)
 
 	_, err = stmt.ExecContext(ctx, seller.ID, seller.CID, seller.CompanyName, seller.Address, seller.Telephone)
 	if err != nil {
@@ -75,8 +90,24 @@ func (m mysqlRepository) CreateSeller(ctx context.Context, seller domain.Seller)
 }
 
 func (m mysqlRepository) UpdateSeller(ctx context.Context, seller domain.Seller) (domain.Seller, error) {
-	//TODO implement me
-	panic("implement me")
+	stmt, err := m.db.PrepareContext(ctx, update)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}(stmt)
+
+	_, err = stmt.ExecContext(ctx, seller.ID, seller.CID, seller.CompanyName, seller.Address, seller.Telephone)
+	if err != nil {
+		return domain.Seller{}, err
+	}
+
+	return seller, nil
 }
 
 func (m mysqlRepository) DeleteSeller(ctx context.Context, i int) error {
