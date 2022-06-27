@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/domain"
 	"log"
@@ -56,32 +57,13 @@ func (m mysqlRepository) GetOneSeller(ctx context.Context, id uuid.UUID) (domain
 		return seller, err
 	}
 
-	rows, err := m.db.QueryContext(ctx, getOne, binaryId)
+	err = m.db.QueryRowContext(ctx, getOne, binaryId).
+		Scan(&binaryId, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
 	if err != nil {
-		log.Println(err)
 		return seller, err
 	}
 
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			log.Println(err.Error())
-		}
-	}(rows)
-
-	for rows.Next() {
-		var id []byte
-		err = rows.Scan(&id, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
-		if err != nil {
-			log.Println(err.Error())
-			return seller, err
-		}
-
-		seller.ID, err = uuid.FromBytes(id)
-		if err != nil {
-			return seller, err
-		}
-	}
+	seller.ID = id
 
 	return seller, nil
 }
@@ -141,26 +123,21 @@ func (m mysqlRepository) UpdateSeller(ctx context.Context, seller domain.Seller)
 }
 
 func (m mysqlRepository) DeleteSeller(ctx context.Context, id uuid.UUID) error {
-	stmt, err := m.db.PrepareContext(ctx, deleteSeller)
-	if err != nil {
-		return err
-	}
-
-	defer func(stmt *sql.Stmt) {
-		err := stmt.Close()
-		if err != nil {
-			log.Println(err.Error())
-		}
-	}(stmt)
-
 	binaryId, err := uuid.UUID.MarshalBinary(id)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.ExecContext(ctx, binaryId)
+	res, err := m.db.ExecContext(ctx, deleteSeller, binaryId)
 	if err != nil {
 		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("0 rows affected")
 	}
 
 	return nil

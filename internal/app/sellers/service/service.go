@@ -75,8 +75,6 @@ func (s sellerService) UpdateSeller(ctx context.Context, id uuid.UUID, cid, comp
 		seller.Telephone = telephone
 	}
 
-	log.Println(seller)
-
 	seller, err = s.repository.UpdateSeller(ctx, seller)
 	if err != nil {
 		log.Println(err.Error())
