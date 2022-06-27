@@ -34,9 +34,9 @@ func (s sellerService) GetOneSeller(ctx context.Context, uuid uuid.UUID) (domain
 	return seller, http.StatusOK, nil
 }
 
-func (s sellerService) CreateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (domain.Seller, int, error) {
+func (s sellerService) CreateSeller(ctx context.Context, cid, companyName, address, telephone string) (domain.Seller, int, error) {
 	seller := domain.Seller{
-		ID:          id,
+		ID:          uuid.New(),
 		CID:         cid,
 		CompanyName: companyName,
 		Address:     address,
@@ -52,14 +52,14 @@ func (s sellerService) CreateSeller(ctx context.Context, id, cid uuid.UUID, comp
 	return seller, http.StatusCreated, nil
 }
 
-func (s sellerService) UpdateSeller(ctx context.Context, id, cid uuid.UUID, companyName, address, telephone string) (domain.Seller, int, error) {
+func (s sellerService) UpdateSeller(ctx context.Context, id uuid.UUID, cid, companyName, address, telephone string) (domain.Seller, int, error) {
 	seller, err := s.repository.GetOneSeller(ctx, id)
 	if err != nil {
 		log.Println(err.Error())
 		return seller, http.StatusNotFound, errors.New("seller not found")
 	}
 
-	if cid != uuid.Nil {
+	if strings.Trim(cid, " ") != "" {
 		seller.CID = cid
 	}
 
@@ -74,6 +74,8 @@ func (s sellerService) UpdateSeller(ctx context.Context, id, cid uuid.UUID, comp
 	if strings.Trim(telephone, " ") != "" {
 		seller.Telephone = telephone
 	}
+
+	log.Println(seller)
 
 	seller, err = s.repository.UpdateSeller(ctx, seller)
 	if err != nil {

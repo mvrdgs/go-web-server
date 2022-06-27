@@ -1,16 +1,15 @@
 package main
 
 import (
-	"database/sql"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/http/controller"
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/repository/mysql"
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/service"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -19,10 +18,7 @@ func main() {
 		log.Fatalln(err.Error())
 	}
 
-	db, err := sql.Open("mysql", os.Getenv("DB"))
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
+	db := mysql.CreateDB()
 
 	r := gin.Default()
 
@@ -32,6 +28,12 @@ func main() {
 	controller.NewSellerHandler(r, sellerService)
 
 	r.GET("/ping", func(c *gin.Context) {
+		id := uuid.New()
+		log.Println(id)
+		bytes, _ := uuid.UUID.MarshalBinary(id)
+		log.Println(bytes)
+		uid, _ := uuid.FromBytes(bytes)
+		log.Println(uid)
 		c.String(http.StatusOK, "Pong")
 	})
 

@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/domain"
 	"github.com/mvrdgs/go-web-server/pkg/web"
+	"log"
 	"net/http"
 )
 
@@ -60,25 +61,14 @@ func (s *SellerHandler) CreateSeller() gin.HandlerFunc {
 		var req request
 		err := ctx.ShouldBindJSON(&req)
 		if err != nil {
+			log.Println(err.Error())
 			ctx.JSON(http.StatusUnprocessableEntity, web.NewResponse(
 				http.StatusUnprocessableEntity, nil, "all fields must be correctly filled",
 			))
 			return
 		}
 
-		id, err := uuid.Parse(ctx.Param("id"))
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "invalid id"))
-			return
-		}
-
-		cid, err := uuid.Parse(req.CID)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "invalid cid"))
-			return
-		}
-
-		seller, code, err := s.sellerService.CreateSeller(ctx, id, cid, req.CompanyName, req.Address, req.Telephone)
+		seller, code, err := s.sellerService.CreateSeller(ctx, req.CID, req.CompanyName, req.Address, req.Telephone)
 		if err != nil {
 			ctx.JSON(code, web.NewResponse(code, nil, err.Error()))
 			return
@@ -105,16 +95,7 @@ func (s *SellerHandler) UpdateSeller() gin.HandlerFunc {
 			return
 		}
 
-		var cid uuid.UUID
-		if req.CID != "" {
-			cid, err = uuid.Parse(req.CID)
-			if err != nil {
-				ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "invalid cid"))
-				return
-			}
-		}
-
-		seller, code, err := s.sellerService.UpdateSeller(ctx, id, cid, req.CompanyName, req.Address, req.Telephone)
+		seller, code, err := s.sellerService.UpdateSeller(ctx, id, req.CID, req.CompanyName, req.Address, req.Telephone)
 		if err != nil {
 			ctx.JSON(code, web.NewResponse(code, nil, err.Error()))
 			return

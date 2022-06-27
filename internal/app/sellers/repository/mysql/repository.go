@@ -30,10 +30,16 @@ func (m mysqlRepository) GetAllSellers(ctx context.Context) ([]domain.Seller, er
 
 	for rows.Next() {
 		var seller domain.Seller
-		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
+		var id []byte
+		err = rows.Scan(&id, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
 		if err != nil {
 			log.Println(err.Error())
 			return nil, err
+		}
+
+		seller.ID, err = uuid.FromBytes(id)
+		if err != nil {
+			return sellers, err
 		}
 
 		sellers = append(sellers, seller)
@@ -45,7 +51,12 @@ func (m mysqlRepository) GetAllSellers(ctx context.Context) ([]domain.Seller, er
 func (m mysqlRepository) GetOneSeller(ctx context.Context, id uuid.UUID) (domain.Seller, error) {
 	var seller domain.Seller
 
-	rows, err := m.db.QueryContext(ctx, getOne, id)
+	binaryId, err := uuid.UUID.MarshalBinary(id)
+	if err != nil {
+		return seller, err
+	}
+
+	rows, err := m.db.QueryContext(ctx, getOne, binaryId)
 	if err != nil {
 		log.Println(err)
 		return seller, err
@@ -59,9 +70,15 @@ func (m mysqlRepository) GetOneSeller(ctx context.Context, id uuid.UUID) (domain
 	}(rows)
 
 	for rows.Next() {
-		err = rows.Scan(&seller.ID, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
+		var id []byte
+		err = rows.Scan(&id, &seller.CID, &seller.CompanyName, &seller.Address, &seller.Telephone)
 		if err != nil {
 			log.Println(err.Error())
+			return seller, err
+		}
+
+		seller.ID, err = uuid.FromBytes(id)
+		if err != nil {
 			return seller, err
 		}
 	}
@@ -82,7 +99,12 @@ func (m mysqlRepository) CreateSeller(ctx context.Context, seller domain.Seller)
 		}
 	}(stmt)
 
-	_, err = stmt.ExecContext(ctx, seller.ID, seller.CID, seller.CompanyName, seller.Address, seller.Telephone)
+	binaryId, err := uuid.UUID.MarshalBinary(seller.ID)
+	if err != nil {
+		return seller, err
+	}
+
+	_, err = stmt.ExecContext(ctx, binaryId, seller.CID, seller.CompanyName, seller.Address, seller.Telephone)
 	if err != nil {
 		log.Println(err.Error())
 		return domain.Seller{}, err
@@ -105,7 +127,12 @@ func (m mysqlRepository) UpdateSeller(ctx context.Context, seller domain.Seller)
 		}
 	}(stmt)
 
-	_, err = stmt.ExecContext(ctx, seller.CID, seller.CompanyName, seller.Address, seller.Telephone, seller.ID)
+	binaryId, err := uuid.UUID.MarshalBinary(seller.ID)
+	if err != nil {
+		return seller, err
+	}
+
+	_, err = stmt.ExecContext(ctx, seller.CID, seller.CompanyName, seller.Address, seller.Telephone, binaryId)
 	if err != nil {
 		return domain.Seller{}, err
 	}
@@ -114,7 +141,7 @@ func (m mysqlRepository) UpdateSeller(ctx context.Context, seller domain.Seller)
 }
 
 func (m mysqlRepository) DeleteSeller(ctx context.Context, id uuid.UUID) error {
-	stmt, err := m.db.PrepareContext(ctx, delete)
+	stmt, err := m.db.PrepareContext(ctx, deleteSeller)
 	if err != nil {
 		return err
 	}
@@ -126,7 +153,12 @@ func (m mysqlRepository) DeleteSeller(ctx context.Context, id uuid.UUID) error {
 		}
 	}(stmt)
 
-	_, err = stmt.ExecContext(ctx, id)
+	binaryId, err := uuid.UUID.MarshalBinary(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.ExecContext(ctx, binaryId)
 	if err != nil {
 		return err
 	}
