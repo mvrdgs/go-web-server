@@ -1,4 +1,4 @@
-package mysql
+package db
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func CreateDB() *sql.DB {
+func CreateMySqlDB() *sql.DB {
 	db, err := sql.Open("mysql", os.Getenv("DB"))
 	if err != nil {
 		log.Fatalln(err.Error())

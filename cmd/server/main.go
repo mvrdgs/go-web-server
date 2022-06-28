@@ -7,6 +7,7 @@ import (
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/http/controller"
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/repository/mysql"
 	"github.com/mvrdgs/go-web-server/internal/app/sellers/service"
+	"github.com/mvrdgs/go-web-server/internal/db"
 	"log"
 	"net/http"
 )
@@ -17,7 +18,7 @@ func main() {
 		log.Fatalln(err.Error())
 	}
 
-	db := mysql.CreateDB()
+	db := db.CreateMySqlDB()
 
 	r := gin.Default()
 
