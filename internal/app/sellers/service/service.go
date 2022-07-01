@@ -46,7 +46,8 @@ func (s sellerService) CreateSeller(ctx context.Context, cid, companyName, addre
 	seller, err := s.repository.CreateSeller(ctx, seller)
 	if err != nil {
 		log.Println(err.Error())
-		return domain.Seller{}, http.StatusConflict, errors.New("cid already registered")
+		code, err := errorHandler(err)
+		return domain.Seller{}, code, err
 	}
 
 	return seller, http.StatusCreated, nil
