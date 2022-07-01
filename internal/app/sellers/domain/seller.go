@@ -13,12 +13,20 @@ type Seller struct {
 	Telephone   string    `db:"telephone" json:"telephone"`
 }
 
+type Locality struct {
+	ID           string `json:"id"`
+	LocalityName string `json:"locality_name"`
+	ProvinceName string `json:"province_name"`
+	CountryName  string `json:"country_name"`
+}
+
 type SellerRepository interface {
 	GetAllSellers(context.Context) ([]Seller, error)
 	GetOneSeller(context.Context, uuid.UUID) (Seller, error)
 	CreateSeller(context.Context, Seller) (Seller, error)
 	UpdateSeller(context.Context, Seller) (Seller, error)
 	DeleteSeller(context.Context, uuid.UUID) error
+	CreateLocality(ctx context.Context, locality Locality, provinceID uuid.UUID) (Locality, error)
 }
 
 type SellerService interface {
@@ -27,4 +35,5 @@ type SellerService interface {
 	CreateSeller(ctx context.Context, cid, companyName, address, telephone string) (Seller, int, error)
 	UpdateSeller(ctx context.Context, id uuid.UUID, cid, companyName, address, telephone string) (Seller, int, error)
 	DeleteSeller(context.Context, uuid.UUID) (int, error)
+	CreateLocality(ctx context.Context, id, localityName, provinceName, countryName string) (Locality, int, error)
 }
