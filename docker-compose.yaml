@@ -3,14 +3,17 @@ version: "3.9"
 services:
   database:
     image: mysql:latest
-    cap_add:
-      - SYS_NICE
     restart: always
+    container_name: go-web-db
+    hostname: go-web-db
     environment:
       - MYSQL_DATABASE=go_web_server
       - MYSQL_ROOT_PASSWORD=123456
     ports:
       - '3306:3306'
+    volumes:
+      - ./db/:/docker-entrypoint-initdb.d
+      - ./db/.data:/var/lib/mysql
   api:
     image: web-server
     restart: always
@@ -19,4 +22,4 @@ services:
     environment:
       - DB=root:123456@tcp(host.docker.internal:3306)/
     depends_on:
-      - "database"
+      - database
