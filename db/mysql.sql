@@ -39,14 +39,14 @@ CREATE TABLE IF NOT EXISTS `warehouses` (
                                             FOREIGN KEY (locality_id) REFERENCES localities(id)
 );
 
-CREATE TABLE IF NOT EXISTS `carries` (
-                                         `id` BINARY(16) PRIMARY KEY,
-                                         `cid` VARCHAR(255) NOT NULL UNIQUE,
-                                         `company_name` VARCHAR(255) NOT NULL,
-                                         `address` VARCHAR(255) NOT NULL,
-                                         `telephone` VARCHAR(255) NOT NULL,
-                                         `locality_id` VARCHAR(255) NOT NULL,
-                                         FOREIGN KEY (locality_id) REFERENCES localities(id)
+CREATE TABLE IF NOT EXISTS `carriers` (
+                                          `id` BINARY(16) PRIMARY KEY,
+                                          `cid` VARCHAR(255) NOT NULL UNIQUE,
+                                          `company_name` VARCHAR(255) NOT NULL,
+                                          `address` VARCHAR(255) NOT NULL,
+                                          `telephone` VARCHAR(255) NOT NULL,
+                                          `locality_id` VARCHAR(255) NOT NULL,
+                                          FOREIGN KEY (locality_id) REFERENCES localities(id)
 );
 
 CREATE TABLE IF NOT EXISTS `product_types` (
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `products` (
 );
 
 CREATE TABLE IF NOT EXISTS `product_batches` (
-                                                 `id` BINARY(16),
+                                                 `id` BINARY(16) PRIMARY KEY,
                                                  `batch_number` VARCHAR(255) NOT NULL UNIQUE,
                                                  `current_quantity` INT NOT NULL,
                                                  `current_temperature` DECIMAL(19,2) NOT NULL,
@@ -117,9 +117,41 @@ CREATE TABLE IF NOT EXISTS `employees` (
                                            FOREIGN KEY (warehouse_id) REFERENCES warehouses(id)
 );
 
+CREATE TABLE IF NOT EXISTS `inbound_orders` (
+                                                `id` BINARY(16) PRIMARY KEY,
+                                                `order_date` DATETIME(6) NOT NULL,
+                                                `order_number` VARCHAR(255) NOT NULL UNIQUE,
+                                                `employee_id` BINARY(16) NOT NULL,
+                                                `product_batch_id` BINARY(16) NOT NULL,
+                                                `warehouse_id` BINARY(16) NOT NULL,
+                                                FOREIGN KEY (product_batch_id) REFERENCES product_batches(id),
+                                                FOREIGN KEY (warehouse_id) REFERENCES warehouses(id)
+);
+
 CREATE TABLE IF NOT EXISTS `buyers` (
                                         `id` BINARY(16) PRIMARY KEY,
                                         `id_card_number` VARCHAR(255) NOT NULL UNIQUE,
                                         `first_name` VARCHAR(255) NOT NULL,
                                         `last_name` VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `order_status` (
+                                              `id` BINARY(16) PRIMARY KEY,
+                                              `description` VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS `purchase_orders` (
+                                                 `id` BINARY(16) PRIMARY KEY,
+                                                 `order_number` VARCHAR(255) NOT NULL,
+                                                 `order_date` DATETIME(6) NOT NULL,
+                                                 `tracking_code` VARCHAR(255) NOT NULL UNIQUE,
+                                                 `buyer_id` BINARY(16) NOT NULL,
+                                                 `carrier_id` BINARY(16) NOT NULL,
+                                                 `order_status_id` BINARY(16) NOT NULL,
+                                                 `warehouse_id` BINARY(16) NOT NULL,
+                                                 FOREIGN KEY (order_number) REFERENCES inbound_orders(order_number),
+                                                 FOREIGN KEY (buyer_id) REFERENCES buyers(id),
+                                                 FOREIGN KEY (carrier_id) REFERENCES carriers(id),
+                                                 FOREIGN KEY (order_status_id) REFERENCES order_status(id),
+                                                 FOREIGN KEY (warehouse_id) REFERENCES warehouses(id)
 );
